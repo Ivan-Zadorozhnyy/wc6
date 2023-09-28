@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tasks</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+            line-height: 1.6;
+        }
+
+        div {
+            margin-bottom: 40px;
+            padding: 25px;
+            border: 1px solid #ccc;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            margin-right: 15px;
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border: none;
+            background-color: #007BFF;
+            color: #fff;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        img {
+            display: block;
+            margin-top: 20px;
+            max-width: 100%;
+            height: auto;
+        }
+
+        #githubResponse {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: 1px solid #ccc;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+
+<!-- Task 1 -->
+<div>
+    <input type="text" id="inputString" placeholder="Type something..." oninput="handleInput()">
+    <p id="reversedString"></p>
+</div>
+
+<script>
+    let timeout;
+
+    function reverseString(str) {
+        return str.split('').reverse().join('');
+    }
+
+    function handleInput() {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => {
+            const inputValue = document.getElementById('inputString').value;
+            const reversed = reverseString(inputValue);
+            document.getElementById('reversedString').innerText = reversed;
+        }, 1000);
+    }
+</script>
+
+<!-- Task 2 -->
+<div>
+    <div id="buttonsContainer"></div>
+    <div>
+        <img id="nasaImage" src="" alt="NASA Image of the Day" style="width: 300px; border: 1px solid black;">
+        <p id="nasaDescription"></p>
+        <p id="statusMessage"></p>
+    </div>
+</div>
+
+<script>
+    for (let i = 1; i <= 30; i++) {
+        const button = document.createElement('button');
+        button.innerText = `2023-09-${String(i).padStart(2, '0')}`;
+        button.onclick = () => fetchData(i);
+        document.getElementById('buttonsContainer').appendChild(button);
+    }
+
+    function fetchData(day) {
+        const today = new Date();
+        if (today < new Date(2023, 8, day)) {
+            displayError('Future date selected.');
+            return;
+        }
+
+        fetch(`https://api.nasa.gov/planetary/apod?api_key=1c5kFYq0S6mGJAZYDc9Cyt7oWaKjK9CswhQz2RP3&date=2023-09-${String(day).padStart(2, '0')}`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('nasaImage').src = data.url;
+                document.getElementById('nasaDescription').innerText = data.explanation;
+            })
+            .catch(error => {
+                displayError('An error occurred while fetching data.');
+            })
+            .finally(() => {
+                document.getElementById('statusMessage').innerText = 'Request completed';
+            });
+    }
+
+    function displayError(message) {
+        document.getElementById('nasaImage').src = '';
+        document.getElementById('nasaDescription').innerText = message;
+    }
+</script>
+
+<!-- Task 3 -->
+<div>
+    <button onclick="fetchValidRequest()">Fetch Valid Request</button>
+    <button onclick="fetchInvalidRequest()">Fetch Invalid Request</button>
+    <p id="githubResponse"></p>
+</div>
+
+<script>
+    function fetchValidRequest() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://api.github.com/users/Ivan-Zadorozhnyy');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('githubResponse').innerText = xhr.responseText;
+            } else {
+                document.getElementById('githubResponse').innerText = 'Error occurred: ' + xhr.status;
+            }
+        };
+        xhr.send();
+    }
+
+    function fetchInvalidRequest() {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'https://api.github.com/users/INVALID_USERNAME');
+        xhr.onload = function() {
+            if (xhr.status === 200) {
+                document.getElementById('githubResponse').innerText = xhr.responseText;
+            } else {
+                document.getElementById('githubResponse').innerText = 'Error occurred: ' + xhr.status;
+            }
+        };
+        xhr.send();
+    }
+</script>
+
+</body>
+</html>
